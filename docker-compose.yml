@@ -1,0 +1,70 @@
+# versão do docker-compose
+version: '3'
+# Criando os serviços...
+services:
+    nginx:
+        build:
+            dockerfile: ./docker/nginx.dockerfile
+            context: .
+        image: douglasq/nginx
+        container_name: nginx
+        ports:
+            - "80:80"
+        networks: 
+            - production-network
+#Aqui especificamos a ordem que o serviço deve subir pois falamos que o mesmo depende dos serviços node1,node2 e node3...            
+        depends_on: 
+            - "node1"
+            - "node2"
+            - "node3"
+# Para o mongodb, não temos nenhuma imagem nossa (dockerfile)
+    mongodb:
+        image: mongo
+        networks: 
+            - production-network
+
+    node1:
+        build:
+            dockerfile: ./docker/alura-books.dockerfile
+            context: .
+        image: douglasq/alura-books
+        container_name: alura-books-1
+        ports:
+            - "3000"
+        networks: 
+            - production-network
+# Aqui especificamos a ordem que o serviço deve subir pois falamos que o mesmo depende do serviço mongodb...
+        depends_on:
+            - "mongodb"
+
+    node2:
+        build:
+            dockerfile: ./docker/alura-books.dockerfile
+            context: .
+        image: douglasq/alura-books
+        container_name: alura-books-2
+        ports:
+            - "3000"
+        networks: 
+            - production-network
+# Aqui especificamos a ordem que o serviço deve subir pois falamos que o mesmo depende do serviço mongodb...            
+        depends_on:
+            - "mongodb"
+
+    node3:
+        build:
+            dockerfile: ./docker/alura-books.dockerfile
+            context: .
+        image: douglasq/alura-books
+        container_name: alura-books-3
+        ports:
+            - "3000"
+        networks: 
+            - production-network
+# Aqui especificamos a ordem que o serviço deve subir pois falamos que o mesmo depende do serviço mongodb...            
+        depends_on:
+            - "mongodb"
+# Aqui criamos uma rede nossa para adicionarmos os containers...
+networks: 
+    production-network:
+        driver: bridge
